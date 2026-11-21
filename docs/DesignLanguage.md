@@ -85,7 +85,8 @@ reused either.
 | `layout/custom_game/customhud/menu_locker_v2.vxml` (generated) + `v2/locker.vcss` + `styles/custom_game/customhud/menu_locker_v2.vcss` | `panorama/layout/custom_game/customhud/menu_locker_v2.vxml_c` | the same plugins, the same page, in the store look: `"menu_locker_v2"`, the default |
 | `styles/custom_game/customhud/v2/menu.vcss`, `menu_mouse.vcss`, `locker.vcss`, `locker_<plugin>.vcss`, `list.vcss`, `hud_text.vcss`, `hud_alert.vcss` (generated) | `s2r://panorama/styles/custom_game/customhud/v2/<sheet>.vcss_c` | the `v2` layouts' copies of the shared sheets, in the store palette (`scripts/generate-v2-sheets.ps1`) |
 | `styles/custom_game/customhud/locker_shop.vcss`, `locker_maps.vcss`, `locker_ranks.vcss`, `locker_vip.vcss`, `locker_admins.vcss`, `locker_mix.vcss` | `s2r://panorama/styles/custom_game/customhud/locker_<plugin>.vcss_c` | one plugin's views, each scoped by `view-<name>` on the shell |
-| `styles/custom_game/customhud/locker_art.vcss` (generated) | `s2r://panorama/styles/custom_game/customhud/locker_art.vcss_c` | map screenshots and logos, rank emblems, replacement rank icon sets and level badges as `econ-<token>` classes |
+| `styles/custom_game/customhud/locker_art.vcss` (generated) | `s2r://panorama/styles/custom_game/customhud/locker_art.vcss_c` | map screenshots and logos, rank emblems, replacement rank icon sets and level badges as `econ-<token>` classes, and the addon's own map pictures, where a picture for a map the game has replaces its screenshot |
+| `styles/custom_game/customhud/server_maps.vcss` (a server's own addon ships it, never this one) | `s2r://panorama/styles/custom_game/customhud/server_maps.vcss_c` | a server's map pictures as `econ-<token>` classes, from `scripts/generate-locker-art.ps1 -Server`. `menu_locker`, `menu_locker_v2` and the four lists that draw maps include it right after `locker_art.vcss`, the one include with no source here; one here would shadow every server's, so the audit fails it |
 | `layout/custom_game/customhud/panel_versus.vxml` + `.vcss` | `panorama/layout/custom_game/customhud/panel_versus.vxml_c` | `"panel_versus"` in `Panels.Versus`: vars `team1 team2 score1 score2 status detail`, class `live` |
 | `layout/custom_game/customhud/panel_ready.vxml` + `.vcss` | `panorama/layout/custom_game/customhud/panel_ready.vxml_c` | `"panel_ready"` in `Panels.Ready`: vars `title count state hint`, classes `is-ready` / `not-ready` |
 | `layout/custom_game/customhud/panel_timeout.vxml` + `.vcss` | `panorama/layout/custom_game/customhud/panel_timeout.vxml_c` | `"panel_timeout"` in `Panels.Timeout`: vars `title team timer detail`, classes `team-ct` / `team-t` |
@@ -95,6 +96,7 @@ reused either.
 | `images/custom_game/customhud/muted.svg` | `panorama/images/custom_game/customhud/muted.vsvg_c` | `ico-mute`: a white copy of the game's muted icon, which is painted red and so ignores `wash-color` |
 | `images/custom_game/customhud/fov_80.svg` … `fov_130.svg` | `panorama/images/custom_game/customhud/fov_N.vsvg_c` | `ico-fov-80` … `ico-fov-130`: a field-of-view dial per ten degrees, for VIPCore's FOV choices |
 | `images/custom_game/customhud/stripes.svg` | `panorama/images/custom_game/customhud/stripes.vsvg_c` | the tile `locker_maps.vcss` repeats over the ground of a map's stand-in, which shows where the map has no picture |
+| `images/custom_game/customhud/maps/<key>.png` (none here today) | `panorama/images/custom_game/customhud/maps/<key>_png.vtex_c` | a map's picture, named `<map name>.png` or `<Workshop id>.png`: this addon's through `locker_art.vcss`, a server's through its `server_maps.vcss` |
 
 The menu variants share `menu.vxml`'s variable vocabulary (`title`, `footer`,
 `option_N`, `option_N_key`, `option_N_right`), so any menu can be pointed at
@@ -960,3 +962,11 @@ Valve's sources, not an observed result:
   row's art at 40%) fades a shot and the stand-in under it as one picture
   rather than each on its own, which would show the stand-in through the
   shot.
+- whether a layout whose `server_maps.vcss` include names a file no mounted
+  addon has still draws, with no "Error parsing layout and style files"
+  dialog, and whether Workshop Tools publishes such layouts with no
+  missing-file error for `server_maps.vcss_c`: every layout that draws maps
+  includes it, CustomHUD's addon never ships it, and `resourcecompiler`
+  compiles such a layout, keeping the reference. With a server's addon
+  mounted beside CustomHUD's: whether its sheet and its pictures draw as
+  CustomHUD's own would.

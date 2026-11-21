@@ -6,6 +6,7 @@
 		<include src="s2r://panorama/styles/custom_game/customhud/menu_mouse.vcss_c" />
 		<include src="s2r://panorama/styles/custom_game/customhud/econ_thumbs.vcss_c" />
 		<include src="s2r://panorama/styles/custom_game/customhud/locker_art.vcss_c" />
+		<include src="s2r://panorama/styles/custom_game/customhud/server_maps.vcss_c" />
 		<include src="s2r://panorama/styles/custom_game/customhud/customhud_icons.vcss_c" />
 		<include src="s2r://panorama/styles/custom_game/customhud/locker.vcss_c" />
 		<include src="s2r://panorama/styles/custom_game/customhud/list.vcss_c" />

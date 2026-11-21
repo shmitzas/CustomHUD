@@ -40,15 +40,19 @@ internal sealed partial class MixScrimsIntegration
         }
     }
 
-    // As MapChooserIntegration.Art, by the map's id. A workshop id is a number, so its prefix comes from the
-    // display name when that is shaped like a map's.
+    // As MapChooserIntegration.Art, by the map's id. A workshop id keys its picture by number, any ws: stripped
+    // though the contract already strips it; its prefix comes from the display name when that is shaped like a map's.
     private static string? Art(MapPoolEntry map)
     {
         var id = map.Id.Trim().ToLowerInvariant();
         var prefix = Prefix(id) ?? Prefix(map.Name.Trim().ToLowerInvariant());
         var mark = prefix is null ? null : $"mark={prefix.ToUpperInvariant()};tone={prefix}";
-        if (!map.IsWorkshop && Directive.IsMapName(id)) return $"image=map/{id};{mark}";
-        return mark ?? (map.IsWorkshop ? "mark=WS" : null);
+        if (map.IsWorkshop)
+        {
+            var workshop = id.StartsWith("ws:", StringComparison.Ordinal) ? id[3..].Trim() : id;
+            return Directive.IsWorkshopId(workshop) ? $"image=map/{workshop};{mark ?? "mark=WS"}" : mark ?? "mark=WS";
+        }
+        return Directive.IsMapName(id) ? $"image=map/{id};{mark}" : mark;
     }
 
     private static string? Prefix(string name)

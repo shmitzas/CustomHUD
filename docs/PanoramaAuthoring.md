@@ -446,18 +446,50 @@ generator, then `watch-panorama.ps1`. `locker_art.vcss` comes from
 `scripts/generate-locker-art.ps1` (`-Source2Viewer <cli>` or `-Listing <file>`,
 as for econ thumbnails): map screenshots and logos, skill-group and Wingman
 emblems from the game, the replacement rank icon sets in its `$CustomIconSets`
-table, and the addon's level badges. Rerun it when a CS2 update adds a map,
-then republish the addon. MapChooser's and MixScrims' pages need no plugin
-release for the new map: their integrations send every map loaded by a
-map-shaped name with its key (`map/<name>`) and its prefix as the stand-in
-drawn under the picture, so a map the addon has no class for shows the
-stand-in until then. The label fallback (`ImageLabels`: Admins' map vote and
+table, the addon's level badges, and the addon's map pictures (below). Rerun it
+when a CS2 update adds a map, then republish the addon. MapChooser's and
+MixScrims' pages need no plugin release for the new map: their integrations
+send every map loaded by a map-shaped name with its key (`map/<name>`), and
+every workshop map whose id is a number with `map/<id>`, each with its prefix
+as the stand-in drawn under the picture, so a map no addon has a class for
+shows the stand-in. The label fallback (`ImageLabels`: Admins' map vote and
 other rows read by their label) picks the map up with the next release that
 updates `LockerProfiles.StockMaps`, which must still equal the map list in the
 header comment: there a listed map without art draws a blank card, and art for
 a map not listed is never used. Keep `$CustomIconSets` equal to
 `RankArt.CustomIconSets` the same way: the plugin only sends a number the
 stylesheet has a class for.
+
+A map picture is a PNG named by its key, lower-case and without `ws:`:
+`<map name>.png` or `<Workshop id>.png`, the shapes `Directive.IsMapName` and
+`Directive.IsWorkshopId` accept. The generator fails on any other name, on any
+file that is not a PNG, since only PNG is proven in game, and on a subfolder,
+whose files `watch-panorama.ps1` would ship with no rule. Each picture becomes a
+`.lk-thumb.econ-<token>` rule for `map/<key>` pointing at
+`s2r://panorama/images/custom_game/customhud/maps/<key>.png`, with no logo rule.
+
+| Mode | Reads | Writes |
+|---|---|---|
+| default | the listing, and `-Pictures` (`resources/panorama/images/custom_game/customhud/maps/`; a missing folder holds none, as today) | `locker_art.vcss`: the game's art, where a picture for a map the game has replaces its screenshot and keeps its logo; a `/* pictures: */` header comment lists the pictures apart from `/* maps: */` |
+| `-Server` | `-Pictures` alone, no listing | `-Output`, by default `server_maps.vcss` in the current folder: the pictures' rules alone, under a header naming it a CustomHUD server sheet |
+
+A server owner ships `server_maps.vcss` and its pictures in their own addon,
+served beside CustomHUD's, so a new picture takes an addon update and no
+CustomHUD release (the wiki's
+[Map Pictures](https://github.com/shmitzas/CustomHUD/wiki/Map-Pictures) page).
+`menu_locker`, `menu_locker_v2`, `menu_list`, `menu_list_v2`,
+`menu_list_mouse` and `menu_list_mouse_v2` include
+`s2r://panorama/styles/custom_game/customhud/server_maps.vcss_c` right after
+`locker_art.vcss`, so a server's rule wins a tie with CustomHUD's: a picture
+named after a stock map replaces its screenshot. The WeaponSkins lists draw no
+map and leave it out. CustomHUD's own addon never ships the sheet, which would
+shadow every server's: the audit (`css.server-sheet`) fails a
+`server_maps.vcss` in `resources/panorama/styles/custom_game/customhud/` and a
+`server_maps.vcss_c` in the local `customhud` addon's compiled tree.
+`resourcecompiler` compiles a layout that includes a stylesheet no addon has
+(`OK: 1 compiled, 0 failed`, probed on 2026-11-21), and `resourceinfo.exe -all`
+shows the compiled layout keeping it as an ordinary include. Whether CS2 then
+draws that layout is [unverified](DesignLanguage.md#unverified-in-game).
 
 A view is a block of rules in its plugin's `locker_<plugin>.vcss`:
 

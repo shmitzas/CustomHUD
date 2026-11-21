@@ -217,17 +217,18 @@ internal sealed class MapChooserIntegration : IPageIntegration, IDisposable
         if (page.Components is [ButtonComponent, ButtonComponent]) page.Decorate(0, "danger;glyph=trash");
     }
 
-    // A map loaded by a map-shaped name sends its picture's key and its prefix (de_dust2: DE), the stand-in the
-    // sheets draw under the picture for where the addon has none. A workshop map's name is unknown until it loads,
-    // so it sends a map-shaped pool name's prefix, under the shot the label fallback adds for a stock one (de_cache).
+    // A map sends its picture's key, map/<name> when loaded by a map-shaped name and map/<id> for a workshop map
+    // with a numeric id, and its prefix (de_dust2: DE), the stand-in the sheets draw under the picture for where no
+    // addon has one. A workshop map's name is unknown until it loads, so its prefix comes from its pool name, else WS.
     private static string? Art(MapChooserMap? map)
     {
         if (map is null) return null;
         var loaded = map.MapName?.Trim().ToLowerInvariant();
         var prefix = Prefix(loaded ?? map.Name.Trim().ToLowerInvariant());
         var mark = prefix is null ? null : $"mark={prefix.ToUpperInvariant()};tone={prefix}";
-        if (map.WorkshopId is null && loaded is not null && Directive.IsMapName(loaded)) return $"image=map/{loaded};{mark}";
-        return mark ?? (map.WorkshopId is null ? null : "mark=WS");
+        if (map.WorkshopId?.Trim() is { } workshop)
+            return Directive.IsWorkshopId(workshop) ? $"image=map/{workshop};{mark ?? "mark=WS"}" : mark ?? "mark=WS";
+        return loaded is not null && Directive.IsMapName(loaded) ? $"image=map/{loaded};{mark}" : mark;
     }
 
     private static string? Prefix(string name)

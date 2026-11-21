@@ -46,6 +46,7 @@ One renderer for every plugin's menus.
 | **[Supported Plugins](../../wiki/Supported-Plugins)** | The designed pages, and their views |
 | **[Layouts](../../wiki/Layouts)** | Which layout draws each menu |
 | **[Layout Variations](../../wiki/Layout-Variations)** | Your own look for a shipped layout, step by step |
+| **[Map Pictures](../../wiki/Map-Pictures)** | Pictures for your workshop and custom maps, in an addon of your own |
 | **[Translations](../../wiki/Translations)** | Languages, and the line naming each plugin over its menus |
 
 ---

@@ -1,6 +1,7 @@
 <#
 .SYNOPSIS
-    Generates locker_art.vcss: map and rank art for menu_locker, by image key.
+    Generates locker_art.vcss, the map and rank art for menu_locker by image key, or
+    with -Server a server's server_maps.vcss, the map pictures of its own addon.
 
 .DESCRIPTION
     Like econ_thumbs.vcss, each image is a class named 'econ-' plus the first 12
@@ -9,6 +10,7 @@
 
         map/<name>         a stock map: its 360p screenshot on a slot's thumb
                            panel (.lk-thumb) and its logo on the logo panel (.lk-logo)
+        map/<key>          a picture from -Pictures, <key>.png, on the thumb panel alone
         rank/skillgroupN   CS2's competitive emblem, N = 0..18, and every number
                            of each replacement set in $CustomIconSets
         rank/wingmanN      the wingman emblem, N = 0..18
@@ -19,22 +21,50 @@
     the label fallback (ImageLabels) gives a listed map without art would leave
     a blank card instead of the typographic one.
 
-    Only paths are written; every image resolves from the player's own CS2 install.
+    A picture's file name is its key, lower-case: a map name (de_dust2) or a Workshop
+    id (3070923343), as MapChooser's and MixScrims' integrations send them
+    (Directive.IsMapName, Directive.IsWorkshopId). Its rule points at
+    panorama/images/custom_game/customhud/maps/<key>.png in whichever addon ships it.
+    PNG only: no other raster is proven in game.
+
+    Default mode writes locker_art.vcss for CustomHUD's addon: the game's art from the
+    listing, and the pictures, where a picture for a map the game has replaces its
+    screenshot and keeps its logo. Only paths are written; every image resolves from
+    the player's own CS2 install, or this addon.
+
+    -Server needs no listing and writes the pictures' rules alone: the sheet a server
+    ships, with its pictures, in its own addon beside CustomHUD's. The map layouts
+    include server_maps.vcss after locker_art.vcss, and CustomHUD's addon never ships it.
 
 .PARAMETER Listing
     A listing of pak01_dir.vpk paths (Source2Viewer-CLI --vpk_list output, or one
     path per line) covering panorama/images/map_icons/ and
     panorama/images/icons/skillgroups/. When omitted, -Source2Viewer produces one.
+    Not read with -Server.
+
+.PARAMETER Pictures
+    The folder of <key>.png map pictures. Defaults to the addon's
+    resources/panorama/images/custom_game/customhud/maps; a missing folder holds none.
+
+.PARAMETER Server
+    Write a server's sheet of map pictures instead of locker_art.vcss.
+
+.PARAMETER Output
+    The sheet to write: the addon's locker_art.vcss, or with -Server server_maps.vcss
+    in the current folder.
 
 .EXAMPLE
     .\scripts\generate-locker-art.ps1 -Listing .\vpk_paths.txt
     .\scripts\generate-locker-art.ps1 -Source2Viewer C:\tools\Source2Viewer-CLI.exe
+    .\scripts\generate-locker-art.ps1 -Server -Pictures C:\myhud\panorama\images\custom_game\customhud\maps -Output C:\myhud\panorama\styles\custom_game\customhud\server_maps.vcss
 #>
 [CmdletBinding()]
 param(
     [string] $Listing       = $null,
     [string] $Source2Viewer = $null,
     [string] $Cs2Root       = 'C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive',
+    [string] $Pictures      = $null,
+    [switch] $Server,
     [string] $Output        = $null
 )
 
@@ -42,8 +72,59 @@ $ErrorActionPreference = 'Stop'
 
 $styles = Join-Path $PSScriptRoot '..\resources\panorama\styles\custom_game\customhud'
 $images = Join-Path $PSScriptRoot '..\resources\panorama\images\custom_game\customhud'
-if (-not $Output) { $Output = Join-Path $styles 'locker_art.vcss' }
-$Output = [IO.Path]::GetFullPath($Output)
+if (-not $Pictures) { $Pictures = Join-Path $images 'maps' }
+$Pictures = [IO.Path]::GetFullPath($Pictures, (Get-Location).ProviderPath)
+if (-not $Output) { $Output = if ($Server) { 'server_maps.vcss' } else { Join-Path $styles 'locker_art.vcss' } }
+$Output = [IO.Path]::GetFullPath($Output, (Get-Location).ProviderPath)
+
+# Key -> URL, ordinal by key. Any file but a PNG, or any subfolder, fails by name rather than go missing, or ship with
+# no rule to draw it when watch-panorama.ps1 compiles it (a .svg, another raster). Only the files an OS leaves pass.
+$found = New-Object 'System.Collections.Generic.SortedDictionary[string,string]' ([StringComparer]::Ordinal)
+if (Test-Path -LiteralPath $Pictures -PathType Container) {
+    foreach ($dir in Get-ChildItem -LiteralPath $Pictures -Directory) { throw "'$($dir.FullName)': keep every picture directly in the pictures folder, with no subfolders." }
+    foreach ($file in Get-ChildItem -LiteralPath $Pictures -File) {
+        if ($file.Name -in 'desktop.ini', 'thumbs.db', '.ds_store') { continue }
+        if ($file.Extension -ne '.png') { throw "'$($file.FullName)': the pictures folder holds PNG pictures only, the one format proven in CS2. Save it as a .png, or move it out." }
+        if ($file.Name -cnotmatch '^([a-z0-9]+_[a-z0-9_]+|[0-9]+)\.png$') {
+            throw "'$($file.FullName)': name a picture after its map as MapChooser or MixScrims gives it, lower-case: <map name>.png (de_dust2.png) or <Workshop id>.png (3070923343.png)."
+        }
+        $found[$Matches[1]] = "s2r://panorama/images/custom_game/customhud/maps/$($Matches[1]).png"
+    }
+}
+if ($Server -and $found.Count -eq 0) { throw "No <key>.png pictures in '$Pictures'. Pass -Pictures <your pictures folder>." }
+
+$owners = @{}
+function Get-Token([string] $Key) {
+    $lower = $Key.ToLowerInvariant()
+    $hash = [Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($lower))
+    $token = [Convert]::ToHexString($hash).Substring(0, 12).ToLowerInvariant()
+    if ($owners.ContainsKey($token) -and $owners[$token] -ne $lower) {
+        throw "Image token collision: '$($owners[$token])' and '$lower' both hash to $token."
+    }
+    $owners[$token] = $lower
+    return $token
+}
+
+$sb = New-Object System.Text.StringBuilder
+function Add-Rule([string] $Selector, [string] $Url) {
+    [void] $sb.Append($Selector).Append(' { background-image: url( "').Append($Url).AppendLine('" ); }')
+}
+
+function Save-Sheet {
+    New-Item -ItemType Directory -Force -Path (Split-Path $Output -Parent) | Out-Null
+    [IO.File]::WriteAllText($Output, $sb.ToString(), (New-Object System.Text.UTF8Encoding $false))
+}
+
+if ($Server) {
+    [void] $sb.AppendLine('/* CustomHUD server sheet, generated by CustomHUD''s scripts/generate-locker-art.ps1 -Server. Do not edit. */')
+    [void] $sb.AppendLine('/* Map pictures this server''s own addon ships beside CustomHUD''s, by image key: map/<key>. */')
+    [void] $sb.AppendLine("/* pictures: $($found.Keys -join ' ') */")
+    [void] $sb.AppendLine('')
+    foreach ($key in $found.Keys) { Add-Rule ".lk-thumb.econ-$(Get-Token "map/$key")" $found[$key] }
+    Save-Sheet
+    Write-Host ("{0} pictures -> {1}" -f $found.Count, $Output)
+    return
+}
 
 if (-not $Listing) {
     if (-not $Source2Viewer -or -not (Test-Path $Source2Viewer)) {
@@ -80,28 +161,18 @@ $CustomIconSets = @(
     @{ First = 26283401; Last = 26283500 }
 )
 
-$owners = @{}
-function Get-Token([string] $Key) {
-    $lower = $Key.ToLowerInvariant()
-    $hash = [Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($lower))
-    $token = [Convert]::ToHexString($hash).Substring(0, 12).ToLowerInvariant()
-    if ($owners.ContainsKey($token) -and $owners[$token] -ne $lower) {
-        throw "Image token collision: '$($owners[$token])' and '$lower' both hash to $token."
-    }
-    $owners[$token] = $lower
-    return $token
-}
-
-$sb = New-Object System.Text.StringBuilder
 [void] $sb.AppendLine('/* Generated by scripts/generate-locker-art.ps1. Do not edit. */')
 [void] $sb.AppendLine('/* Paths only: every image resolves from the player''s own CS2 install, or this addon. */')
 [void] $sb.AppendLine("/* maps: $($maps -join ' ') */")
+if ($found.Count) { [void] $sb.AppendLine("/* pictures: $($found.Keys -join ' ') */") }
 [void] $sb.AppendLine('')
 foreach ($map in $maps) {
     $token = Get-Token "map/$map"
-    [void] $sb.Append('.lk-thumb.econ-').Append($token).Append(' { background-image: url( "s2r://panorama/images/map_icons/screenshots/360p/').Append($map).AppendLine('_png.vtex" ); }')
-    [void] $sb.Append('.lk-logo.econ-').Append($token).Append(' { background-image: url( "s2r://panorama/images/map_icons/map_icon_').Append($map).AppendLine('.vsvg" ); }')
+    $shot = if ($found.ContainsKey($map)) { $found[$map] } else { "s2r://panorama/images/map_icons/screenshots/360p/${map}_png.vtex" }
+    Add-Rule ".lk-thumb.econ-$token" $shot
+    Add-Rule ".lk-logo.econ-$token" "s2r://panorama/images/map_icons/map_icon_$map.vsvg"
 }
+foreach ($key in $found.Keys) { if ($maps -cnotcontains $key) { Add-Rule ".lk-thumb.econ-$(Get-Token "map/$key")" $found[$key] } }
 [void] $sb.AppendLine('')
 foreach ($group in $groups) {
     $token = Get-Token "rank/$group"
@@ -119,7 +190,6 @@ foreach ($level in $levels) {
     [void] $sb.Append('.econ-').Append($token).Append(' { background-image: url( "s2r://panorama/images/custom_game/customhud/faceit_lvl').Append($level).AppendLine('.vsvg" ); }')
 }
 
-New-Item -ItemType Directory -Force -Path (Split-Path $Output -Parent) | Out-Null
-[IO.File]::WriteAllText($Output, $sb.ToString(), (New-Object System.Text.UTF8Encoding $false))
-Write-Host ("{0} maps, {1} emblems, {2} replacement icons, {3} levels -> {4}" -f $maps.Count, $groups.Count,
+Save-Sheet
+Write-Host ("{0} maps, {1} pictures, {2} emblems, {3} replacement icons, {4} levels -> {5}" -f $maps.Count, $found.Count, $groups.Count,
     ($CustomIconSets | ForEach-Object { $_.Last - $_.First + 1 } | Measure-Object -Sum).Sum, $levels.Count, $Output)

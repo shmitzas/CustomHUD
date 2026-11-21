@@ -543,11 +543,11 @@ Per plugin:
       has one) and start the vote. Stock maps draw over their screenshot and
       logo, with no stripes or prefix showing round or through the shot, a
       workshop map as a striped card in its prefix's colour with its
-      prefix large (`awp_…` as `AWP`), or over that map's screenshot where
-      its pool name is a stock map's (`"Name": "de_cache"`), and Extend, when
-      offered, in orange with a glow behind its icon. Under each map's name
-      sits a small boxed label with its kind: `Workshop map` in blue for
-      every workshop map, `Stock map` for any other. A card's tags
+      prefix large (`awp_…` as `AWP`, `WS` for a pool name with none), one
+      listed under a stock map's name (`"Name": "de_cache"`) included, and
+      Extend, when offered, in orange with a glow behind its icon. Under each
+      map's name sits a small boxed label with its kind: `Workshop map` in
+      blue for every workshop map, `Stock map` for any other. A card's tags
       (`Leading`, `Your vote`) sit on its shot's top-right corner, a workshop
       map's too
 - [ ] a map the pool loads by a map-shaped name that the addon has no
@@ -557,6 +557,23 @@ Per plugin:
       large (`DE`), badged `Stock map`; in the keyboard list its prefix sits in
       a small square centred on the dark picture tile, where a stock map's
       screenshot would be
+- [ ] before you publish the addon, with CustomHUD's addon alone and no
+      `server_maps.vcss` in any addon: the board, the poll rows, `!nominate`,
+      Start a vote and the cycle, in mouse mode in both designs and in a wasd
+      list, and every other menu on those layouts (Shop, Ranks), draw as
+      before, except that a workshop map draws as a map with no screenshot
+      does (the item above), with no "Error parsing layout and style files"
+      dialog and nothing about `server_maps` in the console; and the publish
+      completes with no missing-file error for `server_maps.vcss_c`
+- [ ] after you publish it, on a server that serves CustomHUD's addon and a
+      test addon of your own through AddonsManager, the test addon holding a
+      `server_maps.vcss` from `scripts/generate-locker-art.ps1 -Server` and
+      pictures for a workshop map in the pool (`<Workshop id>.png`) and for
+      `de_dust2`: in mouse mode in both designs and in a wasd list, the
+      workshop map shows its picture with none of its stand-in round or
+      through it, a workshop map without a picture keeps its stand-in, and
+      Dust II shows the new picture, in mouse mode with its logo still on
+      the corner
 - [ ] `!nominate` with a stock map on cooldown (`Played recently`): its card's
       screenshot is dark with no stripes through it, as faint as before; an
       unavailable map the addon has no screenshot for shows its stripes faint
@@ -1293,9 +1310,9 @@ wasd and once in mouse mode, once with Ranks installed and once without.
       pool lists the maps with no number keys and a legend that offers nothing
       to select
 - [ ] mouse: `!mix` → Change map and Map pool open as `maps-pool` cards, five
-      to a line: stock maps, and a workshop map whose name is a stock map's,
-      over their screenshot; other workshop maps and maps the addon has no
-      screenshot for a prefix mark, each with its `Stock map` or
+      to a line: stock maps over their screenshot; workshop maps over their
+      picture where a server's addon has one, and otherwise, like maps the
+      addon has no screenshot for, a prefix mark, each with its `Stock map` or
       `Workshop map` badge and its id under the name where they differ; a
       Change map card loads that map, and Map pool's cards are not greyed out
       and neither light up under the pointer nor take a click

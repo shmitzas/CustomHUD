@@ -284,13 +284,18 @@ plugin built. Any other custom renderer can read the same API.
   every page and in the list: `Workshop map` in blue for a map loaded by its
   Workshop id, `Stock map` for one loaded by name (a custom map loaded by name
   included). A map loaded by a map-shaped name (`de_dust2`) sends the key of
-  its screenshot and logo (`image=map/<name>`) with its prefix over stripes in
-  that prefix's tone (`mark=`, `tone=`), which the views draw under the
-  screenshot: it shows where the Workshop addon has no screenshot for the map,
-  as for one Valve added after the addon's last update. A workshop map sends
-  its prefix alone, but where its pool name is a stock map's (`de_cache`) the
-  label read in [What a Page Sends](#what-a-page-sends) still draws that map's
-  screenshot over the prefix, and the badge stays `Workshop map`.
+  its screenshot and logo (`image=map/<name>`), and a workshop map whose id is
+  a number the key of its picture (`image=map/<id>`), each with its prefix over
+  stripes in that prefix's tone (`mark=`, `tone=`), which the views draw under
+  the picture: it shows where no addon has a picture for the map, as for one
+  Valve added after the addon's last update. A workshop map's prefix comes
+  from its pool name (`awp_lego_2`: `AWP`), else it reads `WS`; one whose id
+  is not a number sends that stand-in alone. The game has no picture of a
+  workshop map and CustomHUD's addon ships none, so its picture comes from a
+  server's own addon, in that addon's `server_maps.vcss`
+  ([PanoramaAuthoring.md](PanoramaAuthoring.md#page-layouts)). A workshop map
+  listed under a stock map's name (`de_cache`) shows its own picture or its
+  stand-in, never the stock screenshot.
   Start a vote shows the pool the same way: a ticked map is outlined and
   glows, and the start button is an action card whose line is its hint, which
   MapChooser words (what it does, or why no vote can start now).

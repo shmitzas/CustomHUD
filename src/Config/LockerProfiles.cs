@@ -121,8 +121,9 @@ public static class LockerProfiles
         ["Tracers"] = "crosshair", ["Player Models"] = "agents", ["Memberships"] = "crown",
     });
 
-    // MapChooser. Its hub (mapchooser.hub) is the sidebar root and each page opens as its child. A label sent
-    // with no picture, mark or not, gets its key if a listed stock map; with neither, its prefix if map-shaped.
+    // MapChooser. Its hub (mapchooser.hub) is the sidebar root and each page opens as its child. The integration
+    // keys every map it can (MapChooserIntegration.Art); a label left without a picture gets its key if a listed
+    // stock map, and with no mark either, its prefix if map-shaped.
     public static MenuLayoutProfile Maps()
     {
         var profile = With(Generic(), "maps", new()

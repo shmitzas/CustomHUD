@@ -28,6 +28,9 @@ internal static partial class Directive
     // A lower-case map name with a prefix (de_dust2), the shape FrameComposer reads a label as a map by.
     public static bool IsMapName(string value) => MapName().IsMatch(value);
 
+    // A Steam Workshop item id: digits only. scripts/generate-locker-art.ps1 accepts the same picture names.
+    public static bool IsWorkshopId(string value) => Digits().IsMatch(value);
+
     private static readonly NumberFormatInfo Grouped = new() { NumberGroupSeparator = " " };
 
     [GeneratedRegex("^[a-z0-9-]{1,24}$")]
@@ -35,4 +38,7 @@ internal static partial class Directive
 
     [GeneratedRegex("^[a-z0-9]+_[a-z0-9_]+$")]
     private static partial Regex MapName();
+
+    [GeneratedRegex("^[0-9]+$")]
+    private static partial Regex Digits();
 }

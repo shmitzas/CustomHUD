@@ -53,11 +53,11 @@ public sealed class MenuPageProfile
     // A text colour that stands for a tone (MapChooser's Extend is #FFA500).
     public Dictionary<string, string> ColorTones { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
-    // An entry without `image=` whose label is in ImageLabels gets the image key
-    // ImageFromLabel formats from it: MapChooser sends bare map names, and only
-    // stock maps have art. MarkFromLabel puts the label's prefix ("awp" of
-    // awp_lego_2) on the mark slot of an entry left without an image, and as its
-    // tone when it has none, so a workshop card can be coloured by its kind.
+    // An entry without `image=` whose label is in ImageLabels gets the image key ImageFromLabel
+    // formats from it: rows read by their label have only a map name, and only stock maps are
+    // known to have art. MarkFromLabel puts the label's prefix ("awp" of awp_lego_2) on the mark
+    // slot of an entry left without an image, and as its tone when it has none, so a workshop
+    // card can be coloured by its kind.
     public string ImageFromLabel { get; set; } = "";
     public List<string> ImageLabels { get; set; } = new();
     public bool MarkFromLabel { get; set; }
