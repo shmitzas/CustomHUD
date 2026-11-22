@@ -77,7 +77,7 @@ internal sealed class PanoramaMenuRenderer(
         var steamId = steamIds.Get(slot);
 
         var state = _states.GetOrAdd(slot, _ => new PlayerRenderState { OwnerSlot = slot });
-        var mode = navModes.Resolve(slot, steamId);
+        var mode = navModes.Resolve(slot, steamId, context.Menu.Id);
         var profile = cfg.Resolve(context.Menu.Id, mode);
         var layoutPath = cfg.ResolveLayoutPath(profile);
         var scale = navModes.ResolveScale(slot, steamId, profile);
@@ -649,6 +649,12 @@ internal sealed class PanoramaMenuRenderer(
         var player = core.PlayerManager.GetPlayer(slot);
         if (player is null) return;
         core.Menu.GetSession(player)?.Invalidate();
+    }
+
+    // Game thread.
+    public void InvalidateAll()
+    {
+        foreach (var slot in _states.Keys) InvalidateSlot(slot);
     }
 
     // Game thread, during unload.

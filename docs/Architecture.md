@@ -599,7 +599,9 @@ nothing drawn in their place.
 **Renderer and input method are per-menu, not per-player** — `IMenu.Renderer`
 exists, `IMenuSession.Renderer` does not. Per-player variation therefore lives
 *inside* the renderer: `Render` receives `context.Player`, resolves that
-player's nav mode, and picks a layout profile for it.
+player's nav mode for the menu (a supported plugin's `Menus` entry can set its
+own, `NavModeResolver.Resolve`), and picks a layout profile for it. The input
+paths resolve the same way, from the player's open session.
 
 So one registered renderer id serves every mode. A mode change that changes the
 layout (Mouse to a keyboard mode or back) is a despawn + respawn of that
@@ -620,7 +622,8 @@ Two files, different owners:
   until they choose one. CustomHUD uses `MaxVisibleLines` and `InputMethod` only
   under `"MenuConfig": "swiftlys2"`, the default.
 * `configs/plugins/CustomHUD/config.jsonc` — **ours**. `MenuConfig`, and layouts
-  by name for each plugin's menus, each message kind and each panel.
+  by name for each plugin's menus, each message kind and each panel, and a
+  supported plugin's own nav mode.
 
 Every layout is picked by name. A server owner swaps in their own Panorama
 layout — different art, same function — by defining a profile of that name in

@@ -117,6 +117,15 @@ public sealed class CustomHudConfig
     internal NavMode? StartMode(CoreMenuSettings menus)
         => OwnMenuSettings() ? NavModeResolver.Parse(DefaultNavMode?.Trim()) : menus.DefaultNavMode;
 
+    // The supported plugins whose menus do not just follow StartMode and !setnav: the mode each sets
+    // (null: StartMode), and whether a player's !setnav still wins over it.
+    internal IEnumerable<(string Plugin, NavMode? Mode, bool Override)> OwnNavModes()
+    {
+        foreach (var plugin in BuiltInLayouts.PluginNames())
+            if (Menus.For(plugin) is PluginMenuChoice own && (own.Mode() is not null || !own.AllowPreferenceOverride))
+                yield return (plugin, own.Mode(), own.AllowPreferenceOverride);
+    }
+
     internal int PageLines(CoreMenuSettings menus)
         => OwnMenuSettings() ? Math.Clamp(MaxVisibleLines, 1, 32) : menus.MaxVisibleLines;
 
@@ -200,6 +209,10 @@ public sealed class CustomHudConfig
             yield return $"MaxVisibleLines {MaxVisibleLines} is outside 1-32, so it counts as {Math.Clamp(MaxVisibleLines, 1, 32)}.";
         if (!OwnMenuSettings() && (!IsOneOf(DefaultNavMode, "buttons") || MaxVisibleLines != 5))
             yield return "DefaultNavMode and MaxVisibleLines apply only with \"MenuConfig\": \"customhud\"; configs/menus/menus.jsonc's are in use.";
+        // The binder takes any number for an enum.
+        foreach (var plugin in BuiltInLayouts.PluginNames())
+            if (Menus.For(plugin) is PluginMenuChoice own && !Enum.IsDefined(own.LayoutDefaultNavMode))
+                yield return $"Menus.{plugin}.LayoutDefaultNavMode {(int)own.LayoutDefaultNavMode} is not 0-4, so it counts as 0, the starting mode MenuConfig sets.";
         foreach (var plugin in BuiltInLayouts.PluginNames())
             foreach (var mouse in new[] { true, false })
                 if (Menus.For(plugin).For(mouse) is { } name && MenuLayout(name, plugin, "", mouse) is null)

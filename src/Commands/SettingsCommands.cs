@@ -42,6 +42,8 @@ internal sealed class SettingsCommands(
         prefs.SetNavMode(player.SteamID, NavModeResolver.Name(mode));
         renderer.InvalidateSlot(player.PlayerID);
         Reply(ctx, localizer, "customhud.nav.set", NavModeResolver.Name(mode));
+        if (navModes.PluginsIgnoring(mode).ToList() is { Count: > 0 } kept)
+            Reply(ctx, localizer, "customhud.nav.ignored", string.Join(", ", kept));
         if (mode != NavMode.Numbers) return;
 
         player.SendConsole($"{localizer["customhud.prefix"]} {localizer["customhud.nav.binds_header"]}");

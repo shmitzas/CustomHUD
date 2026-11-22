@@ -268,7 +268,8 @@ has its own keys, so each needs its own pass.
 ```
 
 After each, reopen `!rank` and MapDecals' edit page. The mode applies to every
-menu you open, including ones a plugin opened with its own input method.
+menu you open, including ones a plugin opened with its own input method, unless
+`Menus` keeps a supported plugin's menus in a mode of their own (below).
 
 - [ ] with `"Menus": { "InputMethod": "wasd" }` in `menus.jsonc`, the log reads
       `Players who have not run !setnav navigate in wasd mode`, and a player
@@ -280,6 +281,36 @@ menu you open, including ones a plugin opened with its own input method.
       not run !setnav navigate in mouse mode, and menu pages hold up to 8 lines`;
       a player who never ran `!setnav` opens menus in mouse mode, and after
       `!setnav buttons` the AK-47 list turns in pages of 8 whatever `menus.jsonc` sets
+- [ ] **a plugin's own mode** — set `"LayoutDefaultNavMode": 4` in
+      `Menus.WeaponSkins`: the log reads `These plugins' menus open as Menus in
+      config.jsonc sets: WeaponSkins in mouse mode until a player runs !setnav`.
+      A player who never ran `!setnav` opens `!ws` with a cursor and `!rank` in
+      the starting mode; after `!setnav buttons` both open in buttons, with no
+      second reply line
+- [ ] **override off** — add `"AllowPreferenceOverride": false` there:
+      `!setnav buttons` replies `Navigation set to buttons.` then `Your choice
+      does not apply to these plugins' menus, which keep the server's
+      navigation: WeaponSkins.`; `!ws` still opens with a cursor, `!rank` in
+      buttons. `!setnav mouse` replies with the first line only. In Lithuanian
+      the second line reads `Tavo pasirinkimas negalioja …`
+- [ ] **override off at 0** — `"Admins": { …, "AllowPreferenceOverride": false }`
+      with `LayoutDefaultNavMode` `0` and a `buttons` starting mode: after
+      `!setnav mouse`, `!admin` opens in buttons with no cursor, and the reply
+      names Admins
+- [ ] **input follows the menu** — WeaponSkins locked to mouse, your own mode
+      buttons: in `!ws` Shift, F, E and Tab do nothing and clicks select; in
+      `!rank` Shift and F move the selection and there is no cursor. Lock
+      `Menus.Ranks` to `3` as well: `!1` picks a row in `!rank` and does
+      nothing in `!ws`. After `!setnav wasd`, W and S move the selection on
+      MapDecals' edit page only
+- [ ] **live reload** — WeaponSkins at `2` with `AllowPreferenceOverride`
+      `false`: open `!ws`, set `4` and save: a cursor appears without
+      reopening it; set `2` again and save: the cursor goes and Shift and F
+      move the selection again
+- [ ] **bad value** — `"LayoutDefaultNavMode": 7` logs `config.jsonc:
+      Menus.WeaponSkins.LayoutDefaultNavMode 7 is not 0-4, so it counts as 0, …`
+      and `!ws` follows the starting mode; `"mouse"` works like `4`, and `"foo"`
+      logs `config.jsonc could not be read` and keeps the previous settings
 - [ ] **buttons** — selection follows the keys bound in `menus.jsonc`; the
       legend's keycaps name those actual binds
 - [ ] **wasd** — W/S move the selection exactly one row per press (not two),

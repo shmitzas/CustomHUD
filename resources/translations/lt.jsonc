@@ -2,6 +2,7 @@
   "customhud.prefix": "[green][CustomHUD][default]",
   "customhud.nav.usage": "Naudojimas: !setnav wasd | buttons | numbers | mouse (dabar: {0})",
   "customhud.nav.set": "Navigacija nustatyta į [green]{0}[default].",
+  "customhud.nav.ignored": "Tavo pasirinkimas negalioja šių įskiepių meniu, kurie naudoja serverio nustatytą navigaciją: [green]{0}[default].",
   "customhud.nav.binds": "Klavišų 1-9 bind eilutė įrašyta į konsolę ([green]~[default]): nukopijuok ją ir įklijuok ten.",
   "customhud.nav.binds_header": "Įklijuok šią eilutę į konsolę, kad pririštum klavišus 1-9:",
   "customhud.scale.usage": "Naudojimas: !hudscale {0}",

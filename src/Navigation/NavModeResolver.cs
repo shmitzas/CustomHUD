@@ -29,11 +29,29 @@ internal sealed class NavModeResolver(CustomHudConfigProvider config, PlayerPref
     }
 
     public NavMode Resolve(int slot, ulong steamId)
+        => Chosen(slot, steamId) ?? Start(config.Current);
+
+    // The mode one menu draws and takes input in: a supported plugin's Menus entry can set its own,
+    // and keep a player's !setnav out of it.
+    public NavMode Resolve(int slot, ulong steamId, string menuId)
     {
-        if (_slotModes.TryGetValue(slot, out var chosen)) return chosen;
-        if (Parse(prefs.GetNavMode(steamId)) is { } stored) return stored;
-        return config.Current.StartMode(coreMenus) ?? NavMode.Buttons;
+        var cfg = config.Current;
+        if (cfg.Menus.For(BuiltInLayouts.PluginOf(menuId)) is not PluginMenuChoice own) return Chosen(slot, steamId) ?? Start(cfg);
+        if (own.AllowPreferenceOverride && Chosen(slot, steamId) is { } chosen) return chosen;
+        return own.Mode() ?? Start(cfg);
     }
+
+    // The supported plugins whose menus keep another mode than this one, whatever a player chooses.
+    public IEnumerable<string> PluginsIgnoring(NavMode mode)
+    {
+        var cfg = config.Current;
+        return cfg.OwnNavModes().Where(own => !own.Override && (own.Mode ?? Start(cfg)) != mode).Select(own => own.Plugin);
+    }
+
+    private NavMode? Chosen(int slot, ulong steamId)
+        => _slotModes.TryGetValue(slot, out var chosen) ? chosen : Parse(prefs.GetNavMode(steamId));
+
+    private NavMode Start(CustomHudConfig cfg) => cfg.StartMode(coreMenus) ?? NavMode.Buttons;
 
     public int ResolveScale(int slot, ulong steamId, MenuLayoutProfile profile)
     {

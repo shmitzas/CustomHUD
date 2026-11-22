@@ -134,7 +134,7 @@ internal sealed class MenuInputBridge(
             return MenuKey.None;
 
         var keymap = session.Menu.Keymap;
-        return navModes.Resolve(player.PlayerID, steamIds.Get(player.PlayerID)) switch
+        return navModes.Resolve(player.PlayerID, steamIds.Get(player.PlayerID), session.Menu.Id) switch
         {
             NavMode.Mouse => BoundTo(keymap, Traversal, MenuKey.None),
             NavMode.Numbers => BoundTo(keymap, ReplacedByNumbers, MenuKey.None),
@@ -203,14 +203,13 @@ internal sealed class MenuInputBridge(
 
         if (e.Key is not (KeyKind.W or KeyKind.S or KeyKind.A or KeyKind.D or KeyKind.E or KeyKind.R or KeyKind.Tab)) return;
 
-        var mode = navModes.Resolve(e.PlayerId, steamIds.Get(e.PlayerId));
-        if (mode != NavMode.Wasd) return;
-
         var player = core.PlayerManager.GetPlayer(e.PlayerId);
         if (player is null || player.IsFakeClient) return;
 
         var session = GetOwnSession(player);
         if (session is null) return;
+
+        if (navModes.Resolve(e.PlayerId, steamIds.Get(e.PlayerId), session.Menu.Id) != NavMode.Wasd) return;
 
         if (session.Menu.InputMethod == MenuInputMethod.Buttons
             && session.Menu.Keymap.TryResolve(MenuKeys.FromKeyKind(e.Key), out _))
@@ -258,7 +257,7 @@ internal sealed class MenuInputBridge(
             if (trace) LogNoSession(e, player);
             return;
         }
-        var mode = navModes.Resolve(player.PlayerID, steamIds.Get(player.PlayerID));
+        var mode = navModes.Resolve(player.PlayerID, steamIds.Get(player.PlayerID), session.Menu.Id);
         if (mode != NavMode.Mouse)
         {
             if (trace) LogClick(e, session.Menu.Id, $"dropped: not Mouse mode: {mode}");
@@ -479,6 +478,9 @@ internal sealed class MenuInputBridge(
     {
         if (GetOwnSession(player) is { } session && FrameComposer.Closable(session.Menu)) session.Close();
     }
+
+    // The menu this player has open in CustomHUD, whose mode decides what the number keys do.
+    public string? OwnMenuId(IPlayer player) => GetOwnSession(player)?.Menu.Id;
 
     // A player may have a menu open that belongs to another renderer -- a
     // plugin that forced centerhtml, or a server-wide override. Acting on it

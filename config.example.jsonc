@@ -18,31 +18,59 @@
     "Menus": {
       "WeaponSkins": {
         "Mouse": "menu_skins_mouse_v2",
-        "Keyboard": "menu_list_skins_v2"
+        "Keyboard": "menu_list_skins_v2",
+        // Mode this plugin's menus open in: 0 = the starting mode MenuConfig sets, 1 = wasd, 2 = buttons, 3 = numbers, 4 = mouse.
+        "LayoutDefaultNavMode": 0,
+        // true = a player's !setnav choice wins over LayoutDefaultNavMode, false = this plugin's menus ignore it.
+        "AllowPreferenceOverride": true
       },
       "ShopCore": {
         "Mouse": "menu_locker_v2",
-        "Keyboard": "menu_list_v2"
+        "Keyboard": "menu_list_v2",
+        // Mode this plugin's menus open in: 0 = the starting mode MenuConfig sets, 1 = wasd, 2 = buttons, 3 = numbers, 4 = mouse.
+        "LayoutDefaultNavMode": 0,
+        // true = a player's !setnav choice wins over LayoutDefaultNavMode, false = this plugin's menus ignore it.
+        "AllowPreferenceOverride": true
       },
       "MapChooser": {
         "Mouse": "menu_locker_v2",
-        "Keyboard": "menu_list_v2"
+        "Keyboard": "menu_list_v2",
+        // Mode this plugin's menus open in: 0 = the starting mode MenuConfig sets, 1 = wasd, 2 = buttons, 3 = numbers, 4 = mouse.
+        "LayoutDefaultNavMode": 0,
+        // true = a player's !setnav choice wins over LayoutDefaultNavMode, false = this plugin's menus ignore it.
+        "AllowPreferenceOverride": true
       },
       "Ranks": {
         "Mouse": "menu_locker_v2",
-        "Keyboard": "menu_list_v2"
+        "Keyboard": "menu_list_v2",
+        // Mode this plugin's menus open in: 0 = the starting mode MenuConfig sets, 1 = wasd, 2 = buttons, 3 = numbers, 4 = mouse.
+        "LayoutDefaultNavMode": 0,
+        // true = a player's !setnav choice wins over LayoutDefaultNavMode, false = this plugin's menus ignore it.
+        "AllowPreferenceOverride": true
       },
       "VIPCore": {
         "Mouse": "menu_locker_v2",
-        "Keyboard": "menu_list_v2"
+        "Keyboard": "menu_list_v2",
+        // Mode this plugin's menus open in: 0 = the starting mode MenuConfig sets, 1 = wasd, 2 = buttons, 3 = numbers, 4 = mouse.
+        "LayoutDefaultNavMode": 0,
+        // true = a player's !setnav choice wins over LayoutDefaultNavMode, false = this plugin's menus ignore it.
+        "AllowPreferenceOverride": true
       },
       "Admins": {
         "Mouse": "menu_locker_v2",
-        "Keyboard": "menu_list_v2"
+        "Keyboard": "menu_list_v2",
+        // Mode this plugin's menus open in: 0 = the starting mode MenuConfig sets, 1 = wasd, 2 = buttons, 3 = numbers, 4 = mouse.
+        "LayoutDefaultNavMode": 0,
+        // true = a player's !setnav choice wins over LayoutDefaultNavMode, false = this plugin's menus ignore it.
+        "AllowPreferenceOverride": true
       },
       "MixScrims": {
         "Mouse": "menu_locker_v2",
-        "Keyboard": "menu_list_v2"
+        "Keyboard": "menu_list_v2",
+        // Mode this plugin's menus open in: 0 = the starting mode MenuConfig sets, 1 = wasd, 2 = buttons, 3 = numbers, 4 = mouse.
+        "LayoutDefaultNavMode": 0,
+        // true = a player's !setnav choice wins over LayoutDefaultNavMode, false = this plugin's menus ignore it.
+        "AllowPreferenceOverride": true
       },
       // Every other plugin.
       "Other": {

@@ -50,7 +50,8 @@ internal sealed class NumbersNavCommands(
     {
         var player = ctx.Sender;
         if (player is null || player.IsFakeClient) return;
-        if (navModes.Resolve(player.PlayerID, steamIds.Get(player.PlayerID)) != NavMode.Numbers) return;
+        if (input.OwnMenuId(player) is not { } menu
+            || navModes.Resolve(player.PlayerID, steamIds.Get(player.PlayerID), menu) != NavMode.Numbers) return;
 
         switch (slot)
         {

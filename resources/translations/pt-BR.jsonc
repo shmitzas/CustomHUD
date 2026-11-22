@@ -4,6 +4,8 @@
   "customhud.prefix": "[green][CustomHUD][default]",
   "customhud.nav.usage": "Uso: !setnav wasd | buttons | numbers | mouse (atual: {0})",
   "customhud.nav.set": "Navegação definida para [green]{0}[default].",
+  // After .set, while Menus in config.jsonc keeps a supported plugin's menus out of !setnav. {0} lists those plugins.
+  "customhud.nav.ignored": "Sua escolha não vale para os menus destes plugins, que mantêm a navegação do servidor: [green]{0}[default].",
   // !setnav numbers: .binds in chat, .binds_header in the console above the bind line, which is never translated.
   "customhud.nav.binds": "A linha de bind das teclas 1-9 está no seu console ([green]~[default]): copie e cole-a lá.",
   "customhud.nav.binds_header": "Cole esta linha no console para configurar as teclas 1-9:",

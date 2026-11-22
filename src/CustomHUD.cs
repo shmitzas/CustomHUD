@@ -19,7 +19,7 @@ namespace CustomHUD;
 
 [PluginMetadata(
     Id = "CustomHUD",
-    Version = "1.1.0",
+    Version = "1.2.0",
     Name = "CustomHUD",
     Author = "Shmitzas",
     Description = "CS2-themed Panorama renderer for the SwiftlyS2 menu framework")]
@@ -249,11 +249,21 @@ public sealed class CustomHUD(ISwiftlyCore core) : BasePlugin(core)
                 configProvider.Replace(next);
                 _logger?.LogInformation("[CustomHUD] Config reloaded.");
                 ReportProblems(next);
-                if (previous.OwnMenuSettings() != next.OwnMenuSettings()
-                    || next.OwnMenuSettings() && (previous.DefaultNavMode != next.DefaultNavMode || previous.MaxVisibleLines != next.MaxVisibleLines))
-                    ReportMenuSettings(next);
+                var menuSettingsChanged = previous.OwnMenuSettings() != next.OwnMenuSettings()
+                    || next.OwnMenuSettings() && (previous.DefaultNavMode != next.DefaultNavMode || previous.MaxVisibleLines != next.MaxVisibleLines)
+                    || !previous.OwnNavModes().SequenceEqual(next.OwnNavModes());
+                if (menuSettingsChanged) ReportMenuSettings(next);
+                // MaxVisibleLines is left out: a new page size waits for each open menu's next frame.
+                var navModesChanged = _services?.GetService<CoreMenuSettings>() is { } coreMenus
+                        && (previous.StartMode(coreMenus) ?? NavMode.Buttons) != (next.StartMode(coreMenus) ?? NavMode.Buttons)
+                    || !previous.OwnNavModes().SequenceEqual(next.OwnNavModes());
                 // The capture hook is installed and removed on the game thread, as at load.
-                Core.Scheduler.NextTick(() => _nativeText?.Sync());
+                Core.Scheduler.NextTick(() =>
+                {
+                    _nativeText?.Sync();
+                    // Input takes an open menu's new mode at once, but core redraws a still menu only when it is invalidated.
+                    if (navModesChanged) _renderer?.InvalidateAll();
+                });
             });
 
         _logger.LogInformation(
@@ -311,18 +321,24 @@ public sealed class CustomHUD(ISwiftlyCore core) : BasePlugin(core)
                 yield return $"MenuLayouts.{entry.Key} has a Base but no File, the .vxml_c of your restyled copy.";
     }
 
-    // Where players' starting mode and the page size come from, at start and whenever a reload moves them.
+    // Where players' starting mode and the page size come from, and the supported plugins' own modes, at
+    // start and whenever a reload moves them.
     private void ReportMenuSettings(CustomHudConfig config)
     {
         if (_services?.GetService<CoreMenuSettings>() is not { } menus) return;
         if (!config.OwnMenuSettings())
-        {
             menus.Report();
-            return;
-        }
-        _logger?.LogInformation(
-            "[CustomHUD] Players who have not run !setnav navigate in {Mode} mode, and menu pages hold up to {Lines} lines (\"MenuConfig\": \"customhud\" in config.jsonc).",
-            NavModeResolver.Name(config.StartMode(menus) ?? NavMode.Buttons), config.PageLines(menus));
+        else
+            _logger?.LogInformation(
+                "[CustomHUD] Players who have not run !setnav navigate in {Mode} mode, and menu pages hold up to {Lines} lines (\"MenuConfig\": \"customhud\" in config.jsonc).",
+                NavModeResolver.Name(config.StartMode(menus) ?? NavMode.Buttons), config.PageLines(menus));
+
+        var own = config.OwnNavModes()
+            .Select(p => $"{p.Plugin} in {(p.Mode is { } mode ? NavModeResolver.Name(mode) + " mode" : "the starting mode")}"
+                + (p.Override ? " until a player runs !setnav" : ", whatever !setnav chose"))
+            .ToList();
+        if (own.Count > 0)
+            _logger?.LogInformation("[CustomHUD] These plugins' menus open as Menus in config.jsonc sets: {Plugins}.", string.Join("; ", own));
     }
 
     public override void Unload()

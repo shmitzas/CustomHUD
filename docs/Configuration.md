@@ -43,6 +43,8 @@ Written into `config.jsonc`:
 | `DefaultNavMode` | string | `"buttons"` | Mode for players who never ran `!setnav`, under `"customhud"`: `wasd`, `buttons`, `numbers` or `mouse`. Anything else means `buttons` |
 | `MaxVisibleLines` | int | `5` | Page size in keyboard modes under `"customhud"`, clamped to `1`-`32` |
 | `Menus.<Plugin>.Mouse`, `.Keyboard` | string | `menu_locker_v2`, `menu_list_v2`; WeaponSkins `menu_skins_mouse_v2`, `menu_list_skins_v2`; `Other` `menu_list_mouse_v2`, `menu_list_v2` | Layout per plugin and mode, by file name without `.vxml_c`; `_v2` is CS2's store look, the rest the first designs. See [Layout Resolution](#layout-resolution) |
+| `Menus.<Plugin>.LayoutDefaultNavMode` | int | `0` | The seven supported plugins only, not `Other`: the mode their menus open in. `0` the starting mode `MenuConfig` sets, `1` wasd, `2` buttons, `3` numbers, `4` mouse; the name (`"mouse"`, `"default"`) works too. Another number is logged and counts as `0`. See [Navigation Modes](#navigation-modes) |
+| `Menus.<Plugin>.AllowPreferenceOverride` | bool | `true` | The seven supported plugins only: `true` lets a player's `!setnav` choice win over `LayoutDefaultNavMode` in that plugin's menus, `false` keeps it out |
 | `Messages.Center`, `Alert`, `Notify` | string | `"game"` | Native HUD text capture, see [Native Text Capture](#native-text-capture) |
 | `Panels.Versus`, `Ready`, `Timeout` | string | `panel_versus`, `panel_ready`, `panel_timeout` | Layout per panel for `CustomHUD.Panels.v1`, see [Panels](#panels) |
 | `DetailedLogging` | bool | `false` | Log every frame drawn, with its menu id, layout and the time its build, compose, diff and write took, every captured message, and every mouse click with the branch it took or why it was dropped (`click … -> …`), with a `[CustomHUD]` prefix |
@@ -73,11 +75,14 @@ and one the binder cannot convert keeps the last good config.
 | `!setnav [mode]` | - | None | Choose how you navigate menus: `wasd`, `buttons`, `numbers` or `mouse`. No argument shows your current mode |
 
 `!setnav` applies to every menu that player opens, whatever `menus.jsonc` or
-the plugin chose.
+the plugin chose, except those of a supported plugin whose
+`AllowPreferenceOverride` is `false`. The reply then names those plugins
+(`customhud.nav.ignored`), when their mode differs from the one chosen.
 
 ### Numbers-Mode Commands
 
-These act only for players in `numbers` mode, on menus CustomHUD draws.
+These act on a menu CustomHUD draws in `numbers` mode: the player's own, or the
+mode its plugin sets. See [Navigation Modes](#navigation-modes).
 
 | Command | Aliases | Permission | Description |
 |---------|---------|------------|-------------|
@@ -114,6 +119,16 @@ work on CounterStrikeSharp and ModSharp servers; CustomHUD registers neither.
   points: `Menus.InputMethod` in `menus.jsonc` (unset is `buttons`), or
   `DefaultNavMode`. The log says which:
   `Players who have not run !setnav navigate in wasd mode`.
+- A supported plugin's `Menus` entry can give its menus a mode of their own
+  (`NavModeResolver.Resolve`); `Other` and `MenuOverrides` cannot. While
+  `AllowPreferenceOverride` is `true`, a player's `!setnav` choice wins. Without
+  one, or with `false`, `LayoutDefaultNavMode` `1`-`4` applies, and `0` the
+  starting mode above. Ranks' entry covers Ranks_WeaponStats, Ranks_CustomCombos
+  and Ranks_Prestige. The log names each plugin that sets either:
+  `These plugins' menus open as Menus in config.jsonc sets: WeaponSkins in mouse mode until a player runs !setnav`.
+  Saving `config.jsonc` with a changed mode redraws open menus at once.
+- A plugin set to `3` has the limit a `numbers` starting mode has: a player who
+  never ran `!setnav numbers` has no 1-9 binds, so selects with `!1`-`!9` in chat.
 - In `wasd` mode only W, S, A, D, E, R and Tab work. Where the menu's own keymap
   binds one of them, core handles it and CustomHUD does not, so it never acts
   twice. On Buttons-input menus, core's binds on any other key (Shift and F at
@@ -461,6 +476,8 @@ That is why the file holds names, and the layouts they stand for live in code.
 - `DefaultNavMode` applies only under `"MenuConfig": "customhud"`. A file that
   set it while `menus.jsonc` named no `Menus.InputMethod` now starts players in
   `buttons` mode, and the load warns.
+- Each supported plugin's entry in `Menus` gains `LayoutDefaultNavMode` `0` and
+  `AllowPreferenceOverride` `true`, which keep the mode players had.
 - `Hints`, `PageViews`, `RendererId` and `LayoutRoot` keep working where an older
   file wrote them.
 
@@ -482,6 +499,7 @@ That is why the file holds names, and the layouts they stand for live in code.
 | A plugin's pages draw as plain rows | The plugin is missing, older than [the table](PluginIntegration.md#provider-integrations) needs, or publishes another contract | Read the `[CustomHUD]` log line naming it; update the plugin and CustomHUD together |
 | Navigation mode or scale is forgotten | No Cookies plugin (preferences last until a restart), Cookies added after startup, or a LAN server with SteamID 0 | Install Cookies and restart the server: plugin exports are discovered at startup |
 | Number keys do nothing | The player is not in `numbers` mode, or the keys are not bound | `!setnav numbers`, then paste the bind line it prints into the console |
+| `!setnav` changes every menu but one plugin's; the reply says `Your choice does not apply to these plugins' menus…` | That plugin's `AllowPreferenceOverride` is `false` in `Menus` | Expected. Set it to `true` to let players choose |
 | Log warns `<key> reached the menu router…` | Core acted on a key despite CustomHUD's mask: closed the menu, moved its cursor or activated a row | [Report it](https://github.com/shmitzas/CustomHUD/issues/new?template=bug-report.yml) with your SwiftlyS2 version |
 | A menu has no way out | The plugin unbound Close | Expected: the plugin requires a choice |
 
