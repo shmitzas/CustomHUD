@@ -1,0 +1,2 @@
+/* CustomHUD's placeholder for a server's map pictures. It holds no rules: CustomHUD's own pictures go in server_maps.vcss. */
+/* A server's own addon ships a file at this path, from scripts/generate-locker-art.ps1 -Server, to replace this one. */

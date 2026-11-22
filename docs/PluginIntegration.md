@@ -292,7 +292,7 @@ plugin built. Any other custom renderer can read the same API.
   from its pool name (`awp_lego_2`: `AWP`), else it reads `WS`; one whose id
   is not a number sends that stand-in alone. The game has no picture of a
   workshop map and CustomHUD's addon ships none, so its picture comes from a
-  server's own addon, in that addon's `server_maps.vcss`
+  server's own addon, in that addon's `server_maps_custom.vcss`
   ([PanoramaAuthoring.md](PanoramaAuthoring.md#page-layouts)). A workshop map
   listed under a stock map's name (`de_cache`) shows its own picture or its
   stand-in, never the stock screenshot.

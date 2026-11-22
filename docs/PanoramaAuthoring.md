@@ -446,7 +446,8 @@ generator, then `watch-panorama.ps1`. `locker_art.vcss` comes from
 `scripts/generate-locker-art.ps1` (`-Source2Viewer <cli>` or `-Listing <file>`,
 as for econ thumbnails): map screenshots and logos, skill-group and Wingman
 emblems from the game, the replacement rank icon sets in its `$CustomIconSets`
-table, the addon's level badges, and the addon's map pictures (below). Rerun it
+table and the addon's level badges; map pictures have sheets of their own
+(below). Rerun it
 when a CS2 update adds a map, then republish the addon. MapChooser's and
 MixScrims' pages need no plugin release for the new map: their integrations
 send every map loaded by a map-shaped name with its key (`map/<name>`), and
@@ -470,26 +471,33 @@ whose files `watch-panorama.ps1` would ship with no rule. Each picture becomes a
 
 | Mode | Reads | Writes |
 |---|---|---|
-| default | the listing, and `-Pictures` (`resources/panorama/images/custom_game/customhud/maps/`; a missing folder holds none, as today) | `locker_art.vcss`: the game's art, where a picture for a map the game has replaces its screenshot and keeps its logo; a `/* pictures: */` header comment lists the pictures apart from `/* maps: */` |
-| `-Server` | `-Pictures` alone, no listing | `-Output`, by default `server_maps.vcss` in the current folder: the pictures' rules alone, under a header naming it a CustomHUD server sheet |
+| default | the listing | `locker_art.vcss`: the game's art |
+| `-Maps` | `-Pictures` alone, no listing: by default `resources/panorama/images/custom_game/customhud/maps/`, where a missing folder holds none, as today | `-Output`, by default the addon's `server_maps.vcss`: the pictures' rules, or with none its header alone |
+| `-Server` | `-Pictures` alone, no listing; it fails with none | `-Output`, by default `server_maps_custom.vcss` in the current folder: the pictures' rules alone, under a header naming it a server's replacement for CustomHUD's placeholder |
 
-A server owner ships `server_maps.vcss` and its pictures in their own addon,
-served beside CustomHUD's, so a new picture takes an addon update and no
-CustomHUD release (the wiki's
-[Map Pictures](https://github.com/shmitzas/CustomHUD/wiki/Map-Pictures) page).
 `menu_locker`, `menu_locker_v2`, `menu_list`, `menu_list_v2`,
 `menu_list_mouse` and `menu_list_mouse_v2` include
-`s2r://panorama/styles/custom_game/customhud/server_maps.vcss_c` right after
-`locker_art.vcss`, so a server's rule wins a tie with CustomHUD's: a picture
-named after a stock map replaces its screenshot. The WeaponSkins lists draw no
-map and leave it out. CustomHUD's own addon never ships the sheet, which would
-shadow every server's: the audit (`css.server-sheet`) fails a
-`server_maps.vcss` in `resources/panorama/styles/custom_game/customhud/` and a
-`server_maps.vcss_c` in the local `customhud` addon's compiled tree.
+`s2r://panorama/styles/custom_game/customhud/server_maps.vcss_c` and then
+`server_maps_custom.vcss_c` right after `locker_art.vcss`, so the later sheet
+wins a tie: a picture named after a stock map replaces its screenshot and
+keeps its logo, and a server's picture wins over CustomHUD's. The WeaponSkins
+lists draw no map and leave both out. A server owner ships
+`server_maps_custom.vcss` and its pictures in their own addon, served beside
+CustomHUD's, so a new picture takes an addon update and no CustomHUD release
+(the wiki's
+[Map Pictures](https://github.com/shmitzas/CustomHUD/wiki/Map-Pictures) page).
+
 `resourcecompiler` compiles a layout that includes a stylesheet no addon has
 (`OK: 1 compiled, 0 failed`, probed on 2026-11-21), and `resourceinfo.exe -all`
-shows the compiled layout keeping it as an ordinary include. Whether CS2 then
-draws that layout is [unverified](DesignLanguage.md#unverified-in-game).
+shows the compiled layout keeping it as an ordinary include, but CS2 refuses
+the layout ([Stylesheet rules](DesignLanguage.md#stylesheet-rules)). So
+CustomHUD's addon ships both sheets, `server_maps_custom.vcss` as a placeholder
+with no rules for a server's addon to replace. The audit (`css.server-sheet`)
+fails either sheet missing from `resources/panorama/styles/custom_game/customhud/`
+or from the local `customhud` addon's compiled tree, and a rule in the
+placeholder, which would vanish wherever a server ships its own. Whether a
+server's copy shadows the placeholder on a client is
+[unverified](DesignLanguage.md#unverified-in-game).
 
 A view is a block of rules in its plugin's `locker_<plugin>.vcss`:
 

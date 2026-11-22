@@ -13,7 +13,7 @@ are long, so grep for the heading and read that range.
 | One plugin's pages | `src/Integrations/<Plugin>/`, reading that plugin's API |
 | Which layout, slot counts, class names | `src/Config/` (`LockerProfiles`, `ListProfiles`, `MenuPageProfile`) |
 | Layouts | `resources/panorama/layout/custom_game/customhud/`; `menu_locker*`, `menu_list*` and `menu_skins_mouse_v2` are generated |
-| Sheets | `resources/panorama/styles/custom_game/customhud/`; `v2/` is generated; `econ_*` and `locker_art` come from VPK listings |
+| Sheets | `resources/panorama/styles/custom_game/customhud/`; `v2/` is generated; `econ_*` and `locker_art` come from VPK listings, `server_maps` from `images/custom_game/customhud/maps/`; `server_maps_custom` stays empty for a server's addon to replace |
 | Tokens, icons | `customhud_tokens.vcss`; `customhud_icons.vcss`, where `glyph=x` draws `.ico-x` |
 | Strings | `resources/translations/`: `en.jsonc` and `lt.jsonc` always, `pt-BR.jsonc` partial |
 

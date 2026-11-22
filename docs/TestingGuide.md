@@ -589,22 +589,29 @@ Per plugin:
       a small square centred on the dark picture tile, where a stock map's
       screenshot would be
 - [ ] before you publish the addon, with CustomHUD's addon alone and no
-      `server_maps.vcss` in any addon: the board, the poll rows, `!nominate`,
+      server's addon beside it: the board, the poll rows, `!nominate`,
       Start a vote and the cycle, in mouse mode in both designs and in a wasd
       list, and every other menu on those layouts (Shop, Ranks), draw as
       before, except that a workshop map draws as a map with no screenshot
       does (the item above), with no "Error parsing layout and style files"
       dialog and nothing about `server_maps` in the console; and the publish
-      completes with no missing-file error for `server_maps.vcss_c`
+      completes with no missing-file error for `server_maps.vcss_c` or
+      `server_maps_custom.vcss_c`
 - [ ] after you publish it, on a server that serves CustomHUD's addon and a
       test addon of your own through AddonsManager, the test addon holding a
-      `server_maps.vcss` from `scripts/generate-locker-art.ps1 -Server` and
-      pictures for a workshop map in the pool (`<Workshop id>.png`) and for
-      `de_dust2`: in mouse mode in both designs and in a wasd list, the
+      `server_maps_custom.vcss` from `scripts/generate-locker-art.ps1 -Server`
+      and pictures for a workshop map in the pool (`<Workshop id>.png`) and
+      for `de_dust2`: in mouse mode in both designs and in a wasd list, the
       workshop map shows its picture with none of its stand-in round or
       through it, a workshop map without a picture keeps its stand-in, and
       Dust II shows the new picture, in mouse mode with its logo still on
-      the corner
+      the corner. This is the check that a server's sheet shadows CustomHUD's
+      empty one on a client
+      ([unverified](DesignLanguage.md#unverified-in-game)): run it from a
+      client with none of the local copies `watch-panorama.ps1` leaves in
+      `game\csgo\panorama\*\custom_game\customhud`, with the test addon
+      listed after CustomHUD's in `Main.Addons` and then before it, and note
+      which orders draw the pictures
 - [ ] `!nominate` with a stock map on cooldown (`Played recently`): its card's
       screenshot is dark with no stripes through it, as faint as before; an
       unavailable map the addon has no screenshot for shows its stripes faint

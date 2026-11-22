@@ -115,13 +115,13 @@ $Rules = [ordered]@{
     'css.border-colour'  = 'docs/DesignLanguage.md, "Stylesheet rules": one border colour per panel'
     'css.thin-shadow'    = 'docs/DesignLanguage.md, "Stylesheet rules": thin bars take no box-shadow'
     'css.image'          = 'docs/PanoramaAuthoring.md, "Images": an addon image needs its source in resources/panorama/images'
-    'css.server-sheet'   = 'docs/PanoramaAuthoring.md, "Page layouts": server_maps.vcss ships only in a server''s own addon; one in CustomHUD''s would shadow every server''s'
+    'css.server-sheet'   = 'docs/PanoramaAuthoring.md, "Page layouts": CustomHUD''s addon ships server_maps.vcss and an empty server_maps_custom.vcss, which a server''s own addon replaces'
     'css.comment'        = 'Valve''s sheets use /* */ only: a // comment joins the next selector, and one unreadable selector loses the whole sheet'
     'css.shorthand'      = 'Valve''s own sheets use the animation-* and transition-* longhands only; the shorthands are unproven in CS2'
     'css.sizing'         = 'docs/PanoramaAuthoring.md, "Page layouts": a fixed-column line stays at least 6px short of its container, and its budget comment must add up'
     'vxml.allowlist'     = 'docs/PanoramaAuthoring.md, "What a HUD layout may contain": the client validator''s elements and attributes'
     'vxml.xml'           = 'a layout that is not well-formed XML does not load'
-    'vxml.include'       = 'docs/DesignLanguage.md, "Files": every addon include names a source in resources/panorama, but server_maps.vcss'
+    'vxml.include'       = 'docs/DesignLanguage.md, "Stylesheet rules": CS2 refuses a layout whose include no mounted addon has, so every include names a source in resources/panorama'
     'vxml.tokens-first'  = 'docs/DesignLanguage.md, "Stylesheet rules": tokens come first in every layout'
     'vxml.csgostyles'    = 'docs/DesignLanguage.md, "Stylesheet rules": csgostyles is not included'
     'vxml.duplicate-id'  = 'FrameComposer writes by panel id, so an id names one panel'
@@ -334,8 +334,9 @@ foreach ($w in 'none', 'linear', 'ease', 'ease-in', 'ease-out', 'ease-in-out', '
                'alternate', 'alternate-reverse', 'forwards', 'backwards', 'both', 'running', 'paused') { [void] $AnimationWords.Add($w) }
 
 $GeneratedSheets = 'econ_thumbs.vcss', 'econ_stickers.vcss', 'locker_art.vcss'
-# A server's own addon ships it (generate-locker-art.ps1 -Server); the map layouts include it with no source here.
-$ServerSheet = 'server_maps.vcss'
+# The map layouts include both after locker_art.vcss; a server's own addon replaces server_maps_custom.vcss.
+$ServerSheet = 'server_maps_custom.vcss'
+$MapSheets = 'server_maps.vcss', $ServerSheet
 $TokenSheet = 'customhud_tokens.vcss'
 $ImageRef = 's2r://panorama/(images/custom_game/customhud/[^"''\s)]+)'
 
@@ -508,14 +509,16 @@ for ($k = 0; $k -lt $names.Count - 1; $k++) {
     }
 }
 
-# Every server's own addon ships server_maps.vcss; a copy in CustomHUD's addon would shadow theirs for every player.
-$serverSource = Join-Path $Styles $ServerSheet
-if (Test-Path -LiteralPath $serverSource) {
-    Add-Finding error css.server-sheet (Get-Rel $serverSource) 0 "a server's own addon ships $ServerSheet, never CustomHUD's: delete it"
+foreach ($name in $MapSheets) {
+    if (-not (Test-Path -LiteralPath (Join-Path $Styles $name))) {
+        Add-Finding error css.server-sheet "resources/panorama/styles/custom_game/customhud/$name" 0 'missing: every map layout includes it, so CustomHUD''s addon must ship it'
+    }
 }
-$serverCompiled = [IO.Path]::Combine($Cs2Root, 'game\csgo_addons\customhud\panorama\styles\custom_game\customhud', $ServerSheet + '_c')
-if (Test-Path -LiteralPath $serverCompiled) {
-    Add-Finding error css.server-sheet '' 0 "$serverCompiled is in the customhud addon, so a publish would ship it: delete it"
+# A rule in the sheet a server's own addon replaces would vanish wherever a server ships one.
+foreach ($sheet in @($sheets | Where-Object Name -eq $ServerSheet)) {
+    if ($sheet.Text.Trim()) {
+        Add-At error css.server-sheet $sheet ($sheet.Text.Length - $sheet.Text.TrimStart().Length) "a server's own addon replaces this sheet, so it holds no rules: CustomHUD's map pictures go in server_maps.vcss (generate-locker-art.ps1 -Maps)"
+    }
 }
 
 Write-Stage 'stylesheets'
@@ -536,7 +539,7 @@ foreach ($file in Get-ChildItem -LiteralPath (Join-Path $Panorama 'layout') -Rec
         if ($src -match 'csgostyles') { Add-Finding error vxml.csgostyles $rel $line "includes $src" }
         if ($src -notmatch '^s2r://panorama/(\w+/custom_game/customhud/.+)_c$') { continue }
         $source = Join-Path $Panorama ($Matches[1] -replace '/', '\')
-        if (-not (Test-Path -LiteralPath $source) -and $Matches[1] -ne "styles/custom_game/customhud/$ServerSheet") {
+        if (-not (Test-Path -LiteralPath $source)) {
             Add-Finding error vxml.include $rel $line "$src has no source at resources/panorama/$($Matches[1])"
         }
         if ($src.EndsWith('.vcss_c') -and -not $firstSheet) {
@@ -768,6 +771,15 @@ if (-not $Quick) {
         $global:LASTEXITCODE = 0
         $output = @(& (Join-Path $Repo 'docs\verify-wiki.ps1') *>&1 | ForEach-Object { "$_" })
         if ($LASTEXITCODE -ne 0) { Add-Finding error docs.wiki 'docs/verify-wiki.ps1' 0 (Limit (($output | Select-Object -Last 6) -join ' | ') 500) }
+    }
+}
+
+# After the compile, so a full pass checks what a publish of the customhud addon packs.
+$compiledStyles = [IO.Path]::Combine($Cs2Root, 'game\csgo_addons\customhud\panorama\styles\custom_game\customhud')
+if (Test-Path -LiteralPath $compiledStyles) {
+    foreach ($name in $MapSheets) {
+        $compiled = [IO.Path]::Combine($compiledStyles, $name + '_c')
+        if (-not (Test-Path -LiteralPath $compiled)) { Add-Finding error css.server-sheet '' 0 "$compiled is missing, so a publish would not ship it: run scripts/watch-panorama.ps1 -Once" }
     }
 }
 

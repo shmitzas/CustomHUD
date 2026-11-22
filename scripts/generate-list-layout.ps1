@@ -188,8 +188,8 @@ function New-Layout([bool] $Mouse, [bool] $Stickers, [bool] $V2) {
     }
 
     $econ = if ($Stickers) { @('econ_thumbs', 'econ_stickers') } else { @('econ_thumbs') }
-    # A server's own addon ships server_maps (generate-locker-art.ps1 -Server); no map row reaches the WeaponSkins lists.
-    $art = if ($Stickers) { @('locker_art') } else { @('locker_art', 'server_maps') }
+    # A server's own addon replaces server_maps_custom (generate-locker-art.ps1 -Server); no map row reaches the WeaponSkins lists.
+    $art = if ($Stickers) { @('locker_art') } else { @('locker_art', 'server_maps', 'server_maps_custom') }
     $sheets = if ($V2) { @('customhud_tokens', 'v2/menu', 'v2/menu_mouse') + $econ + $art + @('customhud_icons', 'v2/locker', 'v2/list', 'menu_list_v2') }
               else { @('customhud_tokens', 'menu', 'menu_mouse') + $econ + $art + @('customhud_icons', 'locker', 'list') }
     Line 0 '<root>'
