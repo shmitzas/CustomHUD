@@ -29,6 +29,46 @@ One renderer for every plugin's menus.
 - 🧩 **Panels API and directives** — other plugins show panels and style their rows
 - 🌐 **Translations** — English, Lithuanian and partial Brazilian Portuguese
 
+## 🎬 Showcase
+
+### WeaponSkins
+
+![WeaponSkins in mouse mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/weaponskins.webp)
+
+![WeaponSkins in a keyboard mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/weaponskins-sidemenu.webp)
+
+### ShopCore
+
+![ShopCore in mouse mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/shopcore.webp)
+
+![ShopCore in a keyboard mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/shopcore-sidemenu.webp)
+
+### MapChooser
+
+![MapChooser in mouse mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/mapchooser.webp)
+
+### Ranks
+
+![Ranks in mouse mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/ranks.webp)
+
+![Ranks in a keyboard mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/ranks-sidemenu.webp)
+
+### VIPCore
+
+![VIPCore in mouse mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/vipcore.webp)
+
+![VIPCore in a keyboard mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/vipcore-sidemenu.webp)
+
+### Admins
+
+![Admins in mouse mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/admins.webp)
+
+![Admins in a keyboard mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/admins-sidemenu.webp)
+
+### Every other plugin
+
+![The list in mouse mode](https://raw.githubusercontent.com/wiki/shmitzas/CustomHUD/list.webp)
+
 ## 🚀 Getting Started
 
 | Guide | Description |

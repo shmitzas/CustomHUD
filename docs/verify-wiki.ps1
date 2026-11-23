@@ -57,6 +57,13 @@ foreach ($f in Get-ChildItem $WikiPath -Filter *.md) {
     $text = Remove-Fences (Get-Content $f.FullName -Raw)
     foreach ($m in [regex]::Matches($text, '\]\(([^)\s]+)\)')) {
         $t = $m.Groups[1].Value
+        # Home shares the README's text, where a bare image name breaks, so its images use the wiki's raw URL.
+        if ($t -match '^https://raw\.githubusercontent\.com/wiki/shmitzas/CustomHUD/(.+)$') {
+            if (-not (Test-Path -LiteralPath (Join-Path $WikiPath $Matches[1]))) {
+                Add-Failure 'Assets' "$($f.Name) -> $t  (file not committed to the wiki)"
+            }
+            continue
+        }
         if ($t -match '^(https?:|mailto:)') { continue }
 
         $parts = $t -split '#', 2
