@@ -990,6 +990,15 @@ navigation, focus restore on the in-hand weapon, disabled rows and text inputs
 - [ ] unavailable categories are not exposed as active sidebar shortcuts;
       without the `Stickers` / `Keychains` permission a weapon's Stickers /
       Keychains card is shown disabled
+- [ ] with `"HideWhenDisabled": true` in WeaponSkins' `config.jsonc` and a
+      player without the Music Kits, Agent Properties, StatTrak™ and Stickers
+      permissions (`"Enabled": false` on `MusicKits`, `Patches`, `StatTrak` and
+      `Stickers` gives the same result): the sidebar and
+      the keyboard root have no Music Kits, the agents spotlight no
+      `PROPERTIES`, and an AK-47's card reads Nametag, Wear, Seed, Souvenir and
+      Keychains, Seed with no switch beside its box and Souvenir a field of its
+      own with its switch, and no Stickers heading or tiles. In numbers mode the
+      keys run on with no gap
 - [ ] coloured skin rows get the corresponding rarity's caption and 2px line;
       no invented VIP data appears, and the only mark is on the item you have
       on
@@ -1010,6 +1019,33 @@ navigation, focus restore on the in-hand weapon, disabled rows and text inputs
       outlined in orange, the footer holds `<` and `×`, the sidebar still
       lists the four properties pages, and the inspect card's
       Stickers and Keychains are plain fields with no tiles
+- [ ] WeaponSkins 0.11.0, as a spectator (`jointeam 1`), mouse: `!ws` opens
+      `Choose Loadout` in the page layout (`menu_locker_v2`), not the skin
+      locker: no rail, `WEAPONSKINS` then a rule at the head of the bar, `×`
+      and no `<`. Terrorist and Counter-Terrorist are two big cards, T on the
+      left, each with its emblem in its side's colour glowing behind it and its
+      name on one line (`COUNTER-TERRORIST` whole, no `…`; in Lithuanian
+      `ANTITERORISTAI`), and under it, in the side's colour, how many guns wear
+      a finish on that side (`10 SKINNED`, `0 SKINNED`). A hovered card takes
+      the blue edge
+- [ ] picking Counter-Terrorist opens the skin locker as if you were a CT: the
+      categories count the CT side's finishes, your CT finish is marked and its
+      spotlight reads `EQUIPPED · CT`, Agents spotlights your CT agent under
+      `CT AGENT`, and the properties pages show your CT items. `<` on its first
+      page closes the menu, and `!ws` asks again. Picking Terrorist does the
+      same for T (`EQUIPPED · T`, `T AGENT`), and a finish picked there lands on
+      your T loadout
+- [ ] after picking CT, join T without closing the menu and open another page:
+      it shows your T loadout, the side you are now on
+- [ ] as a T or CT player `!ws` opens the skin locker straight away, its marks
+      your own side's, as before
+- [ ] the first locker (`"menu_skins_mouse"`): the spectator's picker opens in
+      `menu_locker` with gold `WEAPONSKINS` over the title and the same two
+      cards
+- [ ] buttons/WASD/numbers as a spectator: the picker is the list
+      (`menu_list_skins_v2`), two keyed rows of the same height, each led by
+      its emblem in its side's colour with `N skinned` under its name; in
+      numbers mode `1` picks T and `2` CT
 - [ ] Music Kits opens with every kit and its picture; the one kit the game
       ships without a name is listed under its code name, `valve_02`
 - [ ] a picked music kit plays as your round music and MVP anthem, and is

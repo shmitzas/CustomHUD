@@ -65,8 +65,8 @@ public static class BuiltInLayouts
     {
         ["menu_locker_v2"] = PageLockers("menu_locker_v2"),
         ["menu_locker"] = PageLockers("menu_locker"),
-        ["menu_skins_mouse_v2"] = new(StringComparer.OrdinalIgnoreCase) { ["WeaponSkins"] = Pages(MenuLayoutProfile.WeaponSkinsLockerV2()) },
-        ["menu_skins_mouse"] = new(StringComparer.OrdinalIgnoreCase) { ["WeaponSkins"] = Pages(MenuLayoutProfile.WeaponSkinsLocker()) },
+        ["menu_skins_mouse_v2"] = SkinLockers(MenuLayoutProfile.WeaponSkinsLockerV2(), "menu_locker_v2"),
+        ["menu_skins_mouse"] = SkinLockers(MenuLayoutProfile.WeaponSkinsLocker(), "menu_locker"),
     };
 
     private static readonly MenuChoices Defaults = new();
@@ -127,6 +127,17 @@ public static class BuiltInLayouts
         },
         ["MixScrims"] = Pages(Named(LockerProfiles.Mix(), name)),
     };
+
+    // A WeaponSkins locker, and the page layout of the same design for its side picker.
+    private static Dictionary<string, Dictionary<string, MenuLayoutProfile>> SkinLockers(MenuLayoutProfile locker, string pages)
+        => new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["WeaponSkins"] = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["*"] = locker,
+                ["weaponskins.team"] = Named(LockerProfiles.SkinsTeam(), pages),
+            },
+        };
 
     private static Dictionary<string, MenuLayoutProfile> Pages(MenuLayoutProfile profile)
         => new(StringComparer.OrdinalIgnoreCase) { ["*"] = profile };

@@ -46,6 +46,9 @@ internal sealed class WeaponSkinsIntegration(IWeaponSkinAPI api) : IPageIntegrat
         var id = page.Menu.Id;
         switch (id)
         {
+            case "weaponskins.team":
+                DrawSides(page);
+                return;
             case "weaponskins.weapons":
                 DrawCategories(page);
                 // A WeaponSkins older than its categories lists the guns here.
@@ -103,6 +106,19 @@ internal sealed class WeaponSkinsIntegration(IWeaponSkinAPI api) : IPageIntegrat
         {
             DrawTypes(page, "weaponskins.weapons");
             GunChips(page, id["weaponskins.weapons.".Length..]);
+        }
+    }
+
+    private void DrawSides(PageDraw page)
+    {
+        var steamId = page.Player.SteamID;
+        var guns = GunsByCategory().Values.SelectMany(list => list).ToList();
+        for (var k = 0; k < page.Components.Count; k++)
+        {
+            if (page.Components[k] is not MenuComponentBase { Tag: SwiftlyS2.Shared.Players.Team side } || (int)side is not (2 or 3)) continue;
+            var card = (int)side == 3 ? "glyph=ct-logo;tone=ct" : "glyph=t-logo;tone=t";
+            var skinned = guns.Count(weapon => WornFinish(steamId, side, weapon) is not null);
+            page.Decorate(k, card + ";sub=" + T(page, "skinned", skinned));
         }
     }
 
@@ -218,12 +234,17 @@ internal sealed class WeaponSkinsIntegration(IWeaponSkinAPI api) : IPageIntegrat
     // A spotlight's Properties button, only where the player may open the root's entry for them.
     private static string Link(PageDraw page, string entry, string pick = "")
     {
-        var root = page.Menu;
-        var seen = new HashSet<IMenu> { root };
-        while (root.Parent is { } parent && seen.Add(parent)) root = parent;
-        var offered = root.GetComponents(MenuRegion.Body).Any(c => c is SubmenuComponent && c.Id == entry
+        var offered = Root(page.Menu).GetComponents(MenuRegion.Body).Any(c => c is SubmenuComponent && c.Id == entry
             && c.IsVisible(page.Session) && c.IsEnabled(page.Session));
         return offered ? $";link={entry}|{pick}|{T(page, "properties")}" : string.Empty;
+    }
+
+    private static IMenu Root(IMenu menu)
+    {
+        var root = menu;
+        var seen = new HashSet<IMenu> { root };
+        while (root.Parent is { } parent && seen.Add(parent)) root = parent;
+        return root;
     }
 
     // What the player has on one weapon, knife or glove type, by the page family listing its finishes.
@@ -403,20 +424,29 @@ internal sealed class WeaponSkinsIntegration(IWeaponSkinAPI api) : IPageIntegrat
 
     // The first line is the item itself, drawn as the card's hero. A button, slider or switch that
     // follows a text field acts on that field's value, so it joins its row: name tag and its Unset,
-    // wear and its track, StatTrak count and its switch.
+    // wear and its track, StatTrak count and its switch, unless a hidden row sits between them.
     private void DrawProperties(PageDraw page, string id)
     {
         if (page.Components.Count > 0 && page.Components[0] is TextComponent and not InputComponent && Hero(page, id) is { } hero)
             page.Decorate(0, hero);
 
+        var rows = page.Menu.GetComponents(MenuRegion.Body);
         for (var k = 1; k < page.Components.Count; k++)
         {
-            if (page.Components[k - 1] is not InputComponent) continue;
+            if (page.Components[k - 1] is not InputComponent field || !Follows(rows, page.Components[k], field)) continue;
             if (page.Components[k] is SliderComponent) page.Decorate(k, "inline;track=wear");
             else if (page.Components[k] is ButtonComponent or ToggleComponent) page.Decorate(k, "inline");
         }
 
         if (id == "weaponskins.skinproperties") DrawSlots(page);
+    }
+
+    // A row the menu does not hold itself (a row source's) is taken to follow what the page draws before it.
+    private static bool Follows(IReadOnlyList<IMenuComponent> rows, IMenuComponent row, IMenuComponent field)
+    {
+        for (var i = 0; i < rows.Count; i++)
+            if (ReferenceEquals(rows[i], row)) return i > 0 && ReferenceEquals(rows[i - 1], field);
+        return true;
     }
 
     private string? Hero(PageDraw page, string id)
@@ -668,8 +698,12 @@ internal sealed class WeaponSkinsIntegration(IWeaponSkinAPI api) : IPageIntegrat
             : names.TryGetValue("english", out var english) ? english
             : fallback);
 
-    private static (ulong SteamId, SwiftlyS2.Shared.Players.Team Team) Who(PageDraw page) =>
-        (page.Player.SteamID, page.Player.Controller.Team);
+    // Must match the side WeaponSkins edits: a spectator's pick is weaponskins.main's Tag.
+    private static (ulong SteamId, SwiftlyS2.Shared.Players.Team Team) Who(PageDraw page)
+    {
+        var team = page.Player.Controller.Team;
+        return (page.Player.SteamID, (int)team is 2 or 3 ? team : Root(page.Menu).Tag as SwiftlyS2.Shared.Players.Team? ?? team);
+    }
 
     private static string T(PageDraw page, string key, params object[] args) => page.Text("customhud.weaponskins." + key, args);
 }

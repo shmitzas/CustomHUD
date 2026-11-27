@@ -47,6 +47,7 @@
   "customhud.eyebrow.vip": "VIP",
   "customhud.eyebrow.admins": "Admin",
   "customhud.eyebrow.mix": "Mix",
+  "customhud.eyebrow.skins": "WeaponSkins",
   "customhud.lead": "Na liderança",
 
   // The list's footer (menu_list): the word beside each key. Shown upper case.

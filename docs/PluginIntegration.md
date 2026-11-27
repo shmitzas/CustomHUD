@@ -148,6 +148,8 @@ design for that kind of page:
   CustomHUD hides `×` and `<`. The `!mix` panel's map submenus
   (`mixscrims.change-map`, `mixscrims.map-pool`) draw as MapChooser's
   `maps-pool` cards, five to a line.
+- WeaponSkins' side picker (`weaponskins.team`) draws here too, as
+  `mix-sides` with no sidebar ([The WeaponSkins Locker](#the-weaponskins-locker)).
 - Ranks' modules open as tabs under its Statistics but keep ids of their own:
   `weaponstats.weapons` draws as `ranks-weapons`, and the modules' other pages
   and another player's statistics (`ranks.top.player`) as `ranks-stats`. The
@@ -216,6 +218,26 @@ WeaponSkins keeps using ordinary `Core.Menu`.
   (`menu_list_skins` in the first design): the list
   with the same art, sticker art included. Weapon Skins' categories are rows
   there, each pictured and counted as on the mosaic, and the counts are chips.
+- From WeaponSkins 0.11.0, `!ws` opened on neither T nor CT first asks which
+  side's loadout to set up (`weaponskins.team`: two rows whose `Tag` is
+  `Team.T` and `Team.CT`). It draws as MixScrims' side cards (`mix-sides`):
+  each side's emblem in its colour, its name, and how many guns wear a finish
+  on that side. The skin lockers' tiles have no emblem, so the
+  picker draws in the page layout of the same design (`menu_locker_v2` beside
+  `menu_skins_mouse_v2`, `menu_locker` beside `menu_skins_mouse`) with no
+  sidebar, and a `MenuLayouts` copy of a skin locker leaves it there. The
+  keyboard list draws the same two rows with their emblems. A side opens the
+  locker as a menu of its own, which Back closes.
+- Every page reads the loadout WeaponSkins edits: the player's side while they
+  are on T or CT, else the side `weaponskins.main` carries as its `IMenu.Tag`.
+  A spectator's marks, spotlights (`EQUIPPED · T`), agents, patches and
+  properties are those of the side they picked; with a WeaponSkins that tags
+  no side, those of the player's own.
+- WeaponSkins' `HideWhenDisabled` hides the options a player may not use
+  instead of greying them: they leave the sidebar, the card and the list, and
+  a spotlight's Properties button goes with its root entry. A card's control
+  joins the field before it only where WeaponSkins adds it straight after that
+  field, so with StatTrak™ hidden, Souvenir keeps a field of its own.
 
 ## Provider Integrations
 
@@ -231,7 +253,7 @@ plugin built. Any other custom renderer can read the same API.
 | Ranks_WeaponStats | `Ranks.WeaponStats.Api.v1` | any | `weaponstats.*` | Weapon cards with the game's renders and their meters, hit groups as tiles |
 | Ranks_CustomCombos | `Ranks.CustomCombos.Api.v1` | 1.0.2 | `customcombos.*` | Each landed combo as a tile |
 | Ranks_Prestige | `Ranks.Prestige.Api.v1` | 1.0.1 | `prestige.*` | The level and the next-level meter as tiles |
-| WeaponSkins | `WeaponSkins.API` | 0.7.0 (`Agents`, `MusicKits`, `GetImageKey`, `TryGetMusicKit`) | `weaponskins.*` | Item art, captions and the equipped mark, each category by the player's own finish with its counts, and the finish a weapon wears (or the agent worn) as a spotlight with a way to its properties |
+| WeaponSkins | `WeaponSkins.API` | 0.7.0 (`Agents`, `MusicKits`, `GetImageKey`, `TryGetMusicKit`) | `weaponskins.*` | Item art, captions and the equipped mark, each category by the player's own finish with its counts, and the finish a weapon wears (or the agent worn) as a spotlight with a way to its properties, all for the side being edited; from WeaponSkins 0.11.0 a spectator's side picker as MixScrims' side cards |
 | ShopCore | `ShopCore.API.v2` | 1.1.9 | `shopcore.*` | Prices in a value column, item art, and owned, equipped or unaffordable state |
 | MapChooser | `MapChooser.Api.v1` | 1.6.0 (contract 1.2.0) | `mapchooser.*` | The vote as cards or poll rows with each option's share, the vote's clock and turnout, the map menu as the sidebar, the pool with player limits, nominations and why a map can't be nominated, and the map cycle with each map's place and its moves on its row |
 | VIPCore | `VIPCore.Api.v1` | 1.2.0 (contract 1.1.0) | `vipcore.*` | The membership over its perk cards, choices as cards, admin pages as a table beside the selected player's grants |

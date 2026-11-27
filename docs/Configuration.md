@@ -193,7 +193,7 @@ file it names (`.vxml_c` optional, any case):
 | Layout, and its first design | Mouse | Keyboard |
 |------------------------------|-------|----------|
 | `menu_locker_v2`, `menu_locker` | ShopCore, MapChooser, Ranks, VIPCore, Admins and MixScrims: their `LockerProfiles` profile (`admins.vote` the ballot) | none |
-| `menu_skins_mouse_v2`, `menu_skins_mouse` | WeaponSkins: `WeaponSkinsLockerV2()`, `WeaponSkinsLocker()` | none |
+| `menu_skins_mouse_v2`, `menu_skins_mouse` | WeaponSkins: `WeaponSkinsLockerV2()`, `WeaponSkinsLocker()`; its side picker (`weaponskins.team`) `LockerProfiles.SkinsTeam()` in `menu_locker_v2`, `menu_locker` | none |
 | `menu_list_mouse_v2`, `menu_list_mouse` | `ListProfiles.Mouse()` | none |
 | `menu_list_v2`, `menu_list_skins_v2`, `menu_list`, `menu_list_skins` | none | `ListProfiles.Plugins()` for the plugin, else `ListProfiles.Keys()`, in that file |
 | `menu_mouse` | `MenuLayoutProfile.MouseGrid()` | none |
@@ -211,7 +211,8 @@ writes into it. It is **not** merged with a built-in layout: unset fields take
 the defaults below, so repeat `Panels` and `Classes` if your layout renames
 them. The exception is an entry naming a `Base`: a restyled copy of a shipped
 layout, which draws that layout's profile, per plugin and menu, in its own
-`File` (`MenuLayoutProfile.WithFile`), every other field ignored.
+`File` (`MenuLayoutProfile.WithFile`), every other field ignored. A page the
+shipped layout draws in another file (WeaponSkins' side picker) keeps it.
 
 | Setting | Type | Default | Description |
 |---------|------|---------|-------------|
@@ -405,7 +406,7 @@ menu that is its own root takes the first of these that exists:
    menu's id: `weaponskins` for `weaponskins.main`. `DetailedLogging` logs
    each id as `applied … menu=…`.
 2. The eyebrow of a plugin CustomHUD has pages for (`shop`, `maps`, `ranks`,
-   `vip`, `admins`, `mix`).
+   `vip`, `admins`, `mix`; `skins` over WeaponSkins' side picker).
 3. `customhud.eyebrow.default`, for every other plugin.
 
 Only the second ships, so the server shows no eyebrow over a plugin it has no

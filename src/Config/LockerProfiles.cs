@@ -270,6 +270,14 @@ public static class LockerProfiles
         return profile;
     }
 
+    // WeaponSkins' side picker, which BuiltInLayouts registers beside each skin locker.
+    public static MenuLayoutProfile SkinsTeam()
+    {
+        var profile = With(Generic(), "skins", new() { ["weaponskins.team"] = "mix-sides" }, new());
+        profile.Sidebar = null;
+        return profile;
+    }
+
     private static MenuLayoutProfile With(
         MenuLayoutProfile profile, string eyebrow, Dictionary<string, string> views, Dictionary<string, string> icons)
     {

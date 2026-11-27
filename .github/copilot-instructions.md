@@ -43,8 +43,9 @@ A pass proves the sheets parse and keep the rules. It does not prove that a layo
 `resourcecompiler` passes selectors CS2 rejects, and nothing offline draws the way CS2 does.
 
 `scripts/audit-hook.ps1` can enforce step 3 as a Copilot `agentStop` hook; its header shows the
-setup. Where it is installed, a turn that ends with CustomHUD changed and failing is sent back, so
-ask a decision with your question tool rather than by ending the turn.
+setup. Where it is installed, a turn that ends with CustomHUD changed by that session and failing is
+sent back, so ask a decision with your question tool rather than by ending the turn. Changes that
+other conversations made are skipped.
 
 ## Rules that past bugs wrote
 

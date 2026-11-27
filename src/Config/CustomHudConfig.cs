@@ -146,8 +146,11 @@ public sealed class CustomHudConfig
         if ((MenuLayouts.GetValueOrDefault(name) ?? MenuLayouts.GetValueOrDefault(BuiltInLayouts.Bare(name))) is not { } own)
             return BuiltInLayouts.Menu(name, plugin, menuId, mouse);
         if (own.Base.Trim().Length == 0) return own;
+        // A copy restyles its Base's file only: a page the Base sends to another layout (WeaponSkins' side picker) stays there.
         return BuiltInLayouts.Menu(own.Base.Trim(), plugin, menuId, mouse) is { } shipped
-            ? _variations.GetOrAdd((shipped, own.File), key => key.Shipped.WithFile(key.File))
+            ? string.Equals(BuiltInLayouts.Bare(shipped.File), BuiltInLayouts.Bare(own.Base.Trim()), StringComparison.OrdinalIgnoreCase)
+                ? _variations.GetOrAdd((shipped, own.File), key => key.Shipped.WithFile(key.File))
+                : shipped
             : null;
     }
 
